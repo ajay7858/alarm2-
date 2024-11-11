@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Alarm App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2E4053; /* Dark Purple background */
+            margin: 0;
+        }
+        .alarm-container {
+            background-color: #D5DBDB; /* Light Purple container background */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 300px;
+        }
+        h1 {
+            color: #F39C12; /* Light Yellow header */
+        }
+        label, input {
+            color: #2C3E50; /* Darker color for text */
+        }
+        input {
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background-color: #FFFFFF; /* White background for inputs */
+            color: #2C3E50; /* Dark text */
+            width: 100%;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            margin-top: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s;
+        }
+        #setAlarmBtn {
+            background-color: #27AE60; /* Green for set button */
+            color: white;
+        }
+        #setAlarmBtn:hover {
+            background-color: #1E8449; /* Darker green on hover */
+        }
+        #stopAlarmBtn {
+            display: none;
+            background-color: #E74C3C; /* Red for stop button */
+            color: white;
+        }
+        #stopAlarmBtn:hover {
+            background-color: #C0392B; /* Darker red on hover */
+        }
+        h1, button {
+            margin: 10px;
+            color: #2C3E50; /* Dark color for heading and buttons */
+        }
+    </style>
+</head>
+<body>
+    <div class="alarm-container">
+        <h1>Set Alarm</h1>
+        <label>Start Time: <input type="time" id="startTime"></label><br>
+        <label>End Time: <input type="time" id="endTime"></label><br>
+        <button id="setAlarmBtn" onclick="setAlarm()">Set Alarm</button>
+        <button id="stopAlarmBtn" onclick="stopAlarm()">Stop Alarm</button>
+        <audio id="alarmSound" src="/mi.mp3" preload="auto"></audio>
+    </div>
+
+    <script>
+        let alarmTimeout;
+        const alarmSound = document.getElementById('alarmSound');
+        
+        function setAlarm() {
+            const startTimeInput = document.getElementById('startTime').value;
+            const endTimeInput = document.getElementById('endTime').value;
+            const setAlarmBtn = document.getElementById('setAlarmBtn');
+
+            if (!startTimeInput || !endTimeInput) {
+                alert("Please select both start and end times.");
+                return;
+            }
+
+            // Parse start and end times
+            const now = new Date();
+            const start = new Date();
+            start.setHours(parseInt(startTimeInput.split(":")[0]), parseInt(startTimeInput.split(":")[1]), 0, 0);
+            const end = new Date();
+            end.setHours(parseInt(endTimeInput.split(":")[0]), parseInt(endTimeInput.split(":")[1]), 0, 0);
+
+            // Ensure end time is after start time
+            if (end <= start) {
+                alert("End time must be later than start time.");
+                return;
+            }
+
+            // Generate a random time between start and end
+            const randomTime = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+            const delay = randomTime - now;
+
+            // Schedule the alarm
+            alarmTimeout = setTimeout(() => {
+                triggerAlarm();
+            }, delay);
+
+            alert("Alarm set!");
+            setAlarmBtn.disabled = true; // Disable setting another alarm
+        }
+
+        function triggerAlarm() {
+            const stopAlarmBtn = document.getElementById('stopAlarmBtn');
+            stopAlarmBtn.style.display = 'block'; // Show the stop button
+            alarmSound.play();  // Play the sound file
+        }
+
+        function stopAlarm() {
+            alarmSound.pause();
+            alarmSound.currentTime = 0; // Reset sound to start
+            clearTimeout(alarmTimeout);
+
+            // Hide the stop button and reset the set button
+            document.getElementById('stopAlarmBtn').style.display = 'none';
+            document.getElementById('setAlarmBtn').disabled = false;
+        }
+    </script>
+</body>
+</html>
